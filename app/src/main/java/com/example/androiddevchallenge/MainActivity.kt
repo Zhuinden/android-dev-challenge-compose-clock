@@ -32,7 +32,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +49,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
-class MainActivity: AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -82,7 +81,7 @@ fun MyApp() {
                             Text(text = text, fontSize = 16.sp, modifier = Modifier.padding(all = 4.dp))
                         }
                     }
-                    
+
                     val indexHr0 = remainingTimeMillis / 1000 / 60 / 60 % 60 / 10
                     val indexHr1 = remainingTimeMillis / 1000 / 60 / 60 % 60 % 10
                     val indexMin0 = remainingTimeMillis / 1000 / 60 % 60 / 10
@@ -92,7 +91,7 @@ fun MyApp() {
                     val indexMillisec0 = remainingTimeMillis / 100 % 10
                     val indexMillisec1 = remainingTimeMillis / 10 % 10
                     val indexMillisec2 = remainingTimeMillis % 10
-                    
+
                     ClockText(text = "$indexHr0")
                     ClockText(text = "$indexHr1")
                     ClockText(text = ":")
@@ -141,23 +140,32 @@ fun MyApp() {
                 Spacer(modifier = Modifier.height(48.dp))
 
                 Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                    Button(modifier = Modifier.padding(8.dp), onClick = {
-                        previousUpdateTime = System.currentTimeMillis()
-                        isStarted = true
-                    }) {
+                    Button(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            previousUpdateTime = System.currentTimeMillis()
+                            isStarted = true
+                        }
+                    ) {
                         Text(text = "Start")
                     }
 
-                    Button(modifier = Modifier.padding(8.dp), onClick = {
-                        isStarted = false
-                    }) {
+                    Button(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            isStarted = false
+                        }
+                    ) {
                         Text(text = "Pause")
                     }
 
-                    Button(modifier = Modifier.padding(8.dp), onClick = {
-                        isStarted = false
-                        remainingTimeMillis = 0
-                    }) {
+                    Button(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            isStarted = false
+                            remainingTimeMillis = 0
+                        }
+                    ) {
                         Text(text = "Reset")
                     }
                 }
@@ -165,26 +173,29 @@ fun MyApp() {
         }
     }
 
-    DisposableEffect(key1 = Unit, effect = {
-        val job = coroutineScope.launch(context = Dispatchers.Unconfined) {
-            while (true) {
-                yield()
+    DisposableEffect(
+        key1 = Unit,
+        effect = {
+            val job = coroutineScope.launch(context = Dispatchers.Unconfined) {
+                while (true) {
+                    yield()
 
-                withContext(Dispatchers.Main) {
-                    if (isStarted) {
-                        val currentTime = System.currentTimeMillis()
+                    withContext(Dispatchers.Main) {
+                        if (isStarted) {
+                            val currentTime = System.currentTimeMillis()
 
-                        remainingTimeMillis = (remainingTimeMillis - (currentTime - previousUpdateTime)).coerceAtLeast(0)
-                        previousUpdateTime = currentTime
+                            remainingTimeMillis = (remainingTimeMillis - (currentTime - previousUpdateTime)).coerceAtLeast(0)
+                            previousUpdateTime = currentTime
+                        }
                     }
                 }
             }
-        }
 
-        onDispose {
-            job.cancel()
+            onDispose {
+                job.cancel()
+            }
         }
-    })
+    )
 }
 
 @Preview("Light Theme", widthDp = 360, heightDp = 640)
